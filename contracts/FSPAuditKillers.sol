@@ -19,7 +19,7 @@ contract FSPAuditKillers is
     Ownable
 {
     /* [event] */
-    event PauseEvent(bool pause);
+    event PauseUpdated(bool pause);
 
 
     /* [using] */
@@ -34,13 +34,14 @@ contract FSPAuditKillers is
 
 
     /* [bool][private] */
-    bool private PAUSE = true;
+    bool private _pause;
 
 
     /* [string][public] */
     string public baseTokenURI;
 
 
+    /* [] */
     Counters.Counter private _tokenIdTracker;
 
 
@@ -48,6 +49,8 @@ contract FSPAuditKillers is
     constructor (string memory baseURI)
         ERC721("FSP Audit Killers", "FSP")
     {
+        _pause = true;
+
         setBaseURI(baseURI);
     }
 
@@ -56,7 +59,7 @@ contract FSPAuditKillers is
     modifier saleIsOpen()
     {
         require(totalToken() <= TOTAL_SUPPLY, "Total reached");
-        require(!PAUSE, "Sales not open");
+        require(!_pause, "Sales not open");
 
         _;
     }
@@ -71,6 +74,15 @@ contract FSPAuditKillers is
         returns (string memory)
     {
         return baseTokenURI;
+    }
+
+
+    function price(uint256 _count)
+        public
+        pure
+        returns (uint256)
+    {
+        return PRICE.mul(_count);
     }
 
 
@@ -117,9 +129,9 @@ contract FSPAuditKillers is
         payable
         saleIsOpen()
     {
-        require(totalToken() + _tokensId.length <= TOTAL_SUPPLY, "Total supply reached");
+        require(totalToken() + _tokensId.length <= TOTAL_SUPPLY, "Mint complete");
 
-        require(msg.value >= price(_tokensId.length), "Value below price");
+        require(msg.value >= price(_tokensId.length), "!msg.value");
 
         address signerOwner = signatureWallet(
             _msgSender(),
@@ -141,25 +153,10 @@ contract FSPAuditKillers is
                 "Token already minted"
             );
 
-            _mintAnElement(_msgSender(), _tokensId[i]);
+            _tokenIdTracker.increment();
+
+            _safeMint(_msgSender(), _tokensId[i]);
         }
-    }
-
-
-    function _mintAnElement(address _to, uint256 _tokenId)
-        private
-    {
-        _tokenIdTracker.increment();
-        _safeMint(_to, _tokenId);
-    }
-
-
-    function price(uint256 _count)
-        public
-        pure
-        returns (uint256)
-    {
-        return PRICE.mul(_count);
     }
 
 
@@ -171,6 +168,7 @@ contract FSPAuditKillers is
         uint256 tokenCount = balanceOf(_owner);
 
         uint256[] memory tokensId = new uint256[](tokenCount);
+
         for (uint256 i = 0; i < tokenCount; i++)
         {
             tokensId[i] = tokenOfOwnerByIndex(_owner, i);
@@ -180,55 +178,21 @@ contract FSPAuditKillers is
     }
 
 
-    function setPause(bool _pause)
+    function setPause(bool pause)
         public
         onlyOwner()
     {
-        PAUSE = _pause;
-        emit PauseEvent(PAUSE);
+        _pause = pause;
+
+        emit PauseUpdated(_pause);
     }
 
 
-    function _widthdraw(address _address, uint256 _amount)
-        private
+    function widthdrawETH(address _address, uint256 _amount)
+        public
+        onlyOwner()
     {
         (bool success, ) = _address.call{value: _amount}("");
         require(success, "Transfer failed.");
-    }
-
-
-    function getUnsoldTokens(uint256 offset, uint256 limit)
-        external
-        view
-        returns (uint256[] memory)
-    {
-        uint256[] memory tokens = new uint256[](limit);
-
-        for (uint256 i = 0; i < limit; i++)
-        {
-            uint256 key = i + offset;
-            if (ownerOf(key) == address(0))
-            {
-                tokens[i] = key;
-            }
-        }
-
-        return tokens;
-    }
-
-
-    function mintUnsoldTokens(uint256[] memory _tokensId)
-        public 
-        onlyOwner()
-    {
-        require(PAUSE, "Pause is disable");
-
-        for (uint256 i = 0; i < _tokensId.length; i++)
-        {
-            if (ownerOf(_tokensId[i]) == address(0))
-            {
-                _mintAnElement(owner(), _tokensId[i]);
-            }
-        }
     }
 }

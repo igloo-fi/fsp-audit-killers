@@ -1,0 +1,26 @@
+{
+  "name": "fsp-audit-killers",
+  "version": "0.0.1",
+  "description": "NFT for a special groupchat",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igloo-fi/fsp-audit-killers.git"
+  },
+  "author": "harpoonjs.eth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/igloo-fi/fsp-audit-killers/issues"
+  },
+  "homepage": "https://github.com/igloo-fi/fsp-audit-killers#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "hardhat": "^2.12.6"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.1"
+  }
+}

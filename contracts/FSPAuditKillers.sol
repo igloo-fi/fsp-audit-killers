@@ -28,9 +28,8 @@ contract FSPAuditKillers is
 
 
     /* [uint256][public][constant] */
-    uint256 public constant TOTAL_SUPPLY = 10000;
+    uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant PRICE = 0.01 ether;
-    uint256 public constant START_AT = 1;
 
 
     /* [bool][private] */
@@ -58,7 +57,7 @@ contract FSPAuditKillers is
     /* [modifier] */
     modifier saleIsOpen()
     {
-        require(totalToken() <= TOTAL_SUPPLY, "Total reached");
+        require(tokensTotalMinted() <= MAX_SUPPLY, "Total reached");
         require(!_pause, "Sales not open");
 
         _;
@@ -94,7 +93,7 @@ contract FSPAuditKillers is
     }
 
 
-    function totalToken()
+    function tokensTotalMinted()
         public
         view
         returns (uint256)
@@ -120,6 +119,13 @@ contract FSPAuditKillers is
     }
 
 
+    /**
+     * @notice Mint a token
+     * @param _tokensId ids
+     * @param _timestamp timestamp
+     * @param _signature signature
+     * TODO: MAKE THIS FUNCTION ONLY MINT 1 AT A TIME. 
+    */
     function mint(
         uint256[] memory _tokensId,
         uint256 _timestamp,
@@ -129,8 +135,6 @@ contract FSPAuditKillers is
         payable
         saleIsOpen()
     {
-        require(totalToken() + _tokensId.length <= TOTAL_SUPPLY, "Mint complete");
-
         require(msg.value >= price(_tokensId.length), "!msg.value");
 
         address signerOwner = signatureWallet(
@@ -144,12 +148,14 @@ contract FSPAuditKillers is
 
         require(block.timestamp >= _timestamp - 30, "Out of time");
 
+        /* [for] Each tokensId(s) */
         for (uint8 i = 0; i < _tokensId.length; i++)
         {
+            require(tokensTotalMinted() <= MAX_SUPPLY, "Mint complete");
             require(
                 ownerOf(_tokensId[i]) == address(0) &&
                 _tokensId[i] > 0 &&
-                _tokensId[i] <= TOTAL_SUPPLY,
+                _tokensId[i] <= MAX_SUPPLY,
                 "Token already minted"
             );
 

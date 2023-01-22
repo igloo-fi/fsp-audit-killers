@@ -26,13 +26,13 @@ interface IFSPAuditKillers
 	
 
 	/**
-     * @notice Return true if target whitelisted
+     * @notice Return is whitelisted value
      * @dev [!restriction]
      * @dev [view]
      * @param target {address} Address to check if whitelisted
 	 * @return {bool} whitelisted status
     */
-    function whitelisted(address target) external view returns (bool);
+    function isWhitelisted(address target) external view returns (bool);
 
 	/**
      * @notice Return minted count

@@ -71,7 +71,7 @@ contract FSPAuditKillers is
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function whitelisted(address target)
+    function isWhitelisted(address target)
         public
         view
         returns (bool)

@@ -112,8 +112,8 @@ contract FSPAuditKillers is
         payable
     {
         require(tokenIdTracker < MAX_SUPPLY, "Max supply reached");
-        require(_paused == false || _whitelist[msg.sender], "Mint paused");
         require(_minted[msg.sender] < 3, "3 mints per address");
+        require(_paused == false || _whitelist[msg.sender], "Mint paused");
         require(msg.value >= price || _whitelist[msg.sender],  "!msg.value");
 
         // [increment]

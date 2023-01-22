@@ -9,19 +9,19 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+/* [import][domestic] */
+import "./interface/IFSPAuditKillers.sol";
+
 
 /**
  * @title FSPAuditKillers
  * @notice NFTs for the Friendly Stock Picks Audit Killers
 */
 contract FSPAuditKillers is
+    IFSPAuditKillers,
     ERC721Enumerable,
     Ownable
 {
-    /* [event] */
-    event PauseUpdated(bool pause);
-
-
     /* [using] */
     using SafeMath for uint256;
 
@@ -37,7 +37,7 @@ contract FSPAuditKillers is
     bool private _paused;
     
     /* [mapping] */
-    mapping (address => bool) public whitelist;
+    mapping (address => bool) internal _whitelist;
 
 
     /* [constructor] */
@@ -54,7 +54,7 @@ contract FSPAuditKillers is
 
     /* [function] */
     /**
-     * @notice Return bURI
+     * @notice Return baseURI
      * @dev [restriction][internal]
     */
     function _baseURI()
@@ -66,15 +66,19 @@ contract FSPAuditKillers is
     {
         return baseURI;
     }
+
+    /// @inheritdoc IFSPAuditKillers
+    function whitelist(address target)
+        public
+        view
+        returns (bool)
+    {
+        return _whitelist[target];
+    }
     
-    /**
-     * @notice Get id's of tokens owned by provided address
-     * @dev [!restriction]
-     * @dev [view]
-     * @param _owner {address} Address to query with
-    */
+    /// @inheritdoc IFSPAuditKillers
     function walletOwnerOf(address _owner)
-        external
+        public
         view
         returns (uint256[] memory)
     {
@@ -90,17 +94,14 @@ contract FSPAuditKillers is
         return tokensId;
     }
 
-    /**
-     * @notice Mint a token
-     * @dev [!restriction]
-    */
+    /// @inheritdoc IFSPAuditKillers
     function mint()
         public
         payable
     {
         require(tokenIdTracker < MAX_SUPPLY, "Max supply reached");
-        require(_paused == false || whitelist[msg.sender], "Mint paused");
-        require(msg.value >= PRICE || whitelist[msg.sender],  "!msg.value");
+        require(_paused == false || _whitelist[msg.sender], "Mint paused");
+        require(msg.value >= PRICE || _whitelist[msg.sender],  "!msg.value");
 
         // [increment]
         tokenIdTracker++;
@@ -109,11 +110,7 @@ contract FSPAuditKillers is
         _safeMint(_msgSender(), tokenIdTracker);
     }
 
-    /**
-     * @notice Set baseURI
-     * @dev [restriction] owner 
-     * @param newBaseURI New baseURI
-    */
+    /// @inheritdoc IFSPAuditKillers
     function setBaseURI(string memory newBaseURI)
         public
         onlyOwner()
@@ -121,11 +118,7 @@ contract FSPAuditKillers is
         baseURI = newBaseURI;
     }
 
-    /**
-     * @notice Set the state of `_paused`
-     * @dev [restriction] owner
-     * @param paused {bool} State of paused
-    */
+    /// @inheritdoc IFSPAuditKillers
     function setPaused(bool paused)
         public
         onlyOwner()
@@ -135,23 +128,15 @@ contract FSPAuditKillers is
         emit PauseUpdated(_paused);
     }
 
-    /**
-     * @notice Add an address to whitelist
-     * @dev [restriction] owner
-     * @param _address {address} to be withdrawn too
-    */
+    /// @inheritdoc IFSPAuditKillers
     function addToWhitelist(address _address)
         public
         onlyOwner()
     {
-        whitelist[_address] = true;
+        _whitelist[_address] = true;
     }
 
-    /**
-     * @notice Withdraw ETH in this contract
-     * @param _address {address} to be withdrawn too
-     * @param _amount {uint256} to be withdrawn
-    */
+    /// @inheritdoc IFSPAuditKillers
     function widthdrawETH(address _address, uint256 _amount)
         public
         onlyOwner()

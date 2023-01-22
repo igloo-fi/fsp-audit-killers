@@ -1,12 +1,13 @@
 require("dotenv").config()
 import { HardhatUserConfig } from "hardhat/config";
+require("@nomicfoundation/hardhat-chai-matchers")
 import "@nomicfoundation/hardhat-toolbox";
 
 
 /**
  * @type import("hardhat/config").HardhatUserConfig
  */
-const config: HardhatUserConfig = {
+const config: any = {
   solidity: "0.8.9",
   networks: {
     goerli: {
@@ -27,7 +28,10 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
+    }
   }
 };
 

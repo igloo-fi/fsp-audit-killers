@@ -30,6 +30,7 @@ const config: any = {
   etherscan: {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_API_KEY,
     }
   }

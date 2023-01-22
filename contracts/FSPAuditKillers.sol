@@ -38,7 +38,7 @@ contract FSPAuditKillers is
     
     /* [mapping] */
     mapping (address => bool) internal _whitelist;
-    mapping (address => int8) internal _minted;
+    mapping (address => uint8) internal _minted;
 
 
     /* [constructor] */
@@ -78,6 +78,15 @@ contract FSPAuditKillers is
     {
         return _whitelist[target];
     }
+
+    /// @inheritdoc IFSPAuditKillers
+    function minted(address target)
+        public
+        view
+        returns (uint8)
+    {
+        return _minted[target];
+    }
     
     /// @inheritdoc IFSPAuditKillers
     function walletOwnerOf(address target)
@@ -114,7 +123,7 @@ contract FSPAuditKillers is
         _safeMint(_msgSender(), tokenIdTracker);
 
         // [increment]
-        if (_minted[msg.sender] >= 1)
+        if (_minted[msg.sender] > 0)
         {
             _minted[msg.sender]++;
         }

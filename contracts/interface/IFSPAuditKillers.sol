@@ -23,6 +23,7 @@ interface IFSPAuditKillers
 	 * @return {uint8} current token id
     */
     function tokenIdTracker() external view returns (uint8);
+	
 
 	/**
      * @notice Return true if target whitelisted
@@ -32,6 +33,15 @@ interface IFSPAuditKillers
 	 * @return {bool} whitelisted status
     */
     function whitelisted(address target) external view returns (bool);
+
+	/**
+     * @notice Return minted count
+     * @dev [!restriction]
+     * @dev [view]
+     * @param target {address} Address of minter
+	 * @return {uint8} Minted count
+    */
+    function minted(address target) external view returns (uint8);
 
 	/**
      * @notice Get array of token ids owned by specified address

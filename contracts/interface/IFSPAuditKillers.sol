@@ -31,7 +31,7 @@ interface IFSPAuditKillers
      * @param target {address} Address to check if whitelisted
 	 * @return {bool} whitelisted status
     */
-    function whitelist(address target) external view returns (bool);
+    function whitelisted(address target) external view returns (bool);
 
 	/**
      * @notice Get array of token ids owned by specified address
@@ -49,8 +49,10 @@ interface IFSPAuditKillers
 	/**
      * @notice Mint a token
      * @dev [!restriction]
-     * @dev [increment]
+     * @dev [increment] `tokenIdTracker`
 	 *      [mint]
+     *      [increment] `_minted`
+	 * 
     */
 	function mint() external payable;
 
@@ -84,7 +86,7 @@ interface IFSPAuditKillers
      * @dev [update] `_whitelist`
      * @param target {address} to be withdrawn too
     */
-	function addToWhitelist(address target) external;
+	function whitelist(address target) external;
 
 	/**
      * @notice Withdraw ETH in this contract

@@ -38,6 +38,7 @@ contract FSPAuditKillers is
     
     /* [mapping] */
     mapping (address => bool) internal _whitelist;
+    mapping (address => int8) internal _minted;
 
 
     /* [constructor] */
@@ -70,7 +71,7 @@ contract FSPAuditKillers is
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function whitelist(address target)
+    function whitelisted(address target)
         public
         view
         returns (bool)
@@ -103,6 +104,7 @@ contract FSPAuditKillers is
     {
         require(tokenIdTracker < MAX_SUPPLY, "Max supply reached");
         require(_paused == false || _whitelist[msg.sender], "Mint paused");
+        require(_minted[msg.sender] < 3, "2 mints per address");
         require(msg.value >= price || _whitelist[msg.sender],  "!msg.value");
 
         // [increment]
@@ -110,6 +112,9 @@ contract FSPAuditKillers is
 
         // [mint]
         _safeMint(_msgSender(), tokenIdTracker);
+
+        // [increment]
+        _minted[msg.sender]++;
     }
 
     /// @inheritdoc IFSPAuditKillers
@@ -140,7 +145,7 @@ contract FSPAuditKillers is
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function addToWhitelist(address target)
+    function whitelist(address target)
         public
         onlyOwner()
     {

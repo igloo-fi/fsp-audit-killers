@@ -114,7 +114,14 @@ contract FSPAuditKillers is
         _safeMint(_msgSender(), tokenIdTracker);
 
         // [increment]
-        _minted[msg.sender]++;
+        if (_minted[msg.sender] >= 1)
+        {
+            _minted[msg.sender]++;
+        }
+        else
+        {
+            _minted[msg.sender] = 1;
+        }
     }
 
     /// @inheritdoc IFSPAuditKillers

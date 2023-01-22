@@ -53,51 +53,11 @@ contract FSPAuditKillers is
 
     /* [function] */
     /**
-     * @notice Return bURI
-     * @dev [internal]
+     * @notice Get id's of tokens owned by provided address
+     * @dev [!restriction]
+     * @dev [view]
+     * @param _owner {address} Address to query with
     */
-    function _baseURI()
-        internal
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        return bURI;
-    }
-
-
-    /**
-     * @notice Set baseURI
-     * @param newbaseURI New baseURI
-    */
-    function setBaseURI(string memory newbaseURI)
-        public
-        onlyOwner()
-    {
-        bURI = newbaseURI;
-    }
-
-
-    /**
-     * @notice Mint a token
-    */
-    function mint()
-        public
-        payable
-    {
-        require(_tokenIdTracker < MAX_SUPPLY, "Max supply reached");
-        require(_paused == false || whitelist[msg.sender], "Mint paused");
-        require(msg.value >= PRICE || whitelist[msg.sender],  "!msg.value");
-
-        // [increment]
-        _tokenIdTracker++;
-
-        // [mint]
-        _safeMint(_msgSender(), _tokenIdTracker);
-    }
-
-
     function walletOwnerOf(address _owner)
         external
         view
@@ -115,7 +75,56 @@ contract FSPAuditKillers is
         return tokensId;
     }
 
+    /**
+     * @notice Mint a token
+     * @dev [!restriction]
+    */
+    function mint()
+        public
+        payable
+    {
+        require(_tokenIdTracker < MAX_SUPPLY, "Max supply reached");
+        require(_paused == false || whitelist[msg.sender], "Mint paused");
+        require(msg.value >= PRICE || whitelist[msg.sender],  "!msg.value");
 
+        // [increment]
+        _tokenIdTracker++;
+
+        // [mint]
+        _safeMint(_msgSender(), _tokenIdTracker);
+    }
+
+    /**
+     * @notice Return bURI
+     * @dev [restriction][internal]
+    */
+    function _baseURI()
+        internal
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        return bURI;
+    }
+
+    /**
+     * @notice Set baseURI
+     * @dev [restriction]owner 
+     * @param newbaseURI New baseURI
+    */
+    function setBaseURI(string memory newbaseURI)
+        public
+        onlyOwner()
+    {
+        bURI = newbaseURI;
+    }
+
+    /**
+     * @notice Set the state of `_paused`
+     * @dev [restriction] owner
+     * @param paused {bool} State of paused
+    */
     function setPaused(bool paused)
         public
         onlyOwner()
@@ -125,7 +134,11 @@ contract FSPAuditKillers is
         emit PauseUpdated(_paused);
     }
 
-
+    /**
+     * @notice Add an address to whitelist
+     * @dev [restriction] owner
+     * @param _address {address} to be withdrawn too
+    */
     function addToWhitelist(address _address)
         public
         onlyOwner()
@@ -137,7 +150,7 @@ contract FSPAuditKillers is
      * @notice Withdraw ETH in this contract
      * @param _address {address} to be withdrawn too
      * @param _amount {uint256} to be withdrawn
-     */
+    */
     function widthdrawETH(address _address, uint256 _amount)
         public
         onlyOwner()

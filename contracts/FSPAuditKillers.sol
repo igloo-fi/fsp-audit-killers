@@ -126,6 +126,18 @@ contract FSPAuditKillers is
     }
 
 
+    function addToWhitelist(address _address)
+        public
+        onlyOwner()
+    {
+        whitelist[_address] = true;
+    }
+
+    /**
+     * @notice Withdraw ETH in this contract
+     * @param _address {address} to be withdrawn too
+     * @param _amount {uint256} to be withdrawn
+     */
     function widthdrawETH(address _address, uint256 _amount)
         public
         onlyOwner()

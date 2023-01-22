@@ -26,32 +26,47 @@ contract FSPAuditKillers is
     using SafeMath for uint256;
 
 
-    /* [uint256][public][constant] */
+    /* [public][constant] */
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant PRICE = 0.01 ether;
-    /* [bool][private] */
+
+    string public baseURI;
+    uint8 public tokenIdTracker;
+
+    /* [private] */
     bool private _paused;
-    /* [string][private] */
-    string private bURI;
-    /* [uint8] */
-    uint8 private _tokenIdTracker;
+    
     /* [mapping] */
     mapping (address => bool) public whitelist;
 
 
     /* [constructor] */
-    constructor (string memory baseURI)
+    constructor (string memory initialBaseURI)
         ERC721("FSP Audit Killers", "FSP")
     {
         _paused = true;
 
-        setBaseURI(baseURI);
+        setBaseURI(initialBaseURI);
         
-        _tokenIdTracker = 0;
+        tokenIdTracker = 0;
     }
 
 
     /* [function] */
+    /**
+     * @notice Return bURI
+     * @dev [restriction][internal]
+    */
+    function _baseURI()
+        internal
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        return baseURI;
+    }
+    
     /**
      * @notice Get id's of tokens owned by provided address
      * @dev [!restriction]
@@ -83,41 +98,27 @@ contract FSPAuditKillers is
         public
         payable
     {
-        require(_tokenIdTracker < MAX_SUPPLY, "Max supply reached");
+        require(tokenIdTracker < MAX_SUPPLY, "Max supply reached");
         require(_paused == false || whitelist[msg.sender], "Mint paused");
         require(msg.value >= PRICE || whitelist[msg.sender],  "!msg.value");
 
         // [increment]
-        _tokenIdTracker++;
+        tokenIdTracker++;
 
         // [mint]
-        _safeMint(_msgSender(), _tokenIdTracker);
-    }
-
-    /**
-     * @notice Return bURI
-     * @dev [restriction][internal]
-    */
-    function _baseURI()
-        internal
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        return bURI;
+        _safeMint(_msgSender(), tokenIdTracker);
     }
 
     /**
      * @notice Set baseURI
-     * @dev [restriction]owner 
-     * @param newbaseURI New baseURI
+     * @dev [restriction] owner 
+     * @param newBaseURI New baseURI
     */
-    function setBaseURI(string memory newbaseURI)
+    function setBaseURI(string memory newBaseURI)
         public
         onlyOwner()
     {
-        bURI = newbaseURI;
+        baseURI = newBaseURI;
     }
 
     /**

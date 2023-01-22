@@ -21,10 +21,15 @@ const config: HardhatUserConfig = {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: [`0x${process.env.PRIVATE_KEY}`]
     },
+    optimism: {
+      url: `https://mainnet.optimism.io`,
+      accounts: [`0x${process.env.PRIVATE_KEY}`]
+    },
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   }
 };
+
 
 export default config;

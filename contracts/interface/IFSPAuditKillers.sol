@@ -38,7 +38,7 @@ interface IFSPAuditKillers
      * @notice Return minted count
      * @dev [!restriction]
      * @dev [view]
-     * @param target {address} Address of minter
+     * @param target {address}
 	 * @return {uint8} Minted count
     */
     function minted(address target) external view returns (uint8);

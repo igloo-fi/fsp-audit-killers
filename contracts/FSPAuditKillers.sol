@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
  * @title FSPAuditKillers
- * @notice NFTs for the Friend Stock Picks Audit Killers
+ * @notice NFTs for the Friendly Stock Picks Audit Killers
 */
 contract FSPAuditKillers is
     ERC721Enumerable,
@@ -24,47 +24,38 @@ contract FSPAuditKillers is
 
     /* [using] */
     using SafeMath for uint256;
-    using Counters for Counters.Counter;
 
 
     /* [uint256][public][constant] */
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant PRICE = 0.01 ether;
-
-
     /* [bool][private] */
-    bool private _pause;
-
-
-    /* [string][public] */
-    string public baseTokenURI;
-
-
-    /* [] */
-    Counters.Counter private _tokenIdTracker;
+    bool private _paused;
+    /* [string][private] */
+    string private bURI;
+    /* [uint8] */
+    uint8 private _tokenIdTracker;
+    /* [mapping] */
+    mapping (address => bool) public whitelist;
 
 
     /* [constructor] */
     constructor (string memory baseURI)
         ERC721("FSP Audit Killers", "FSP")
     {
-        _pause = true;
+        _paused = true;
 
         setBaseURI(baseURI);
-    }
-
-
-    /* [modifier] */
-    modifier saleIsOpen()
-    {
-        require(tokensTotalMinted() <= MAX_SUPPLY, "Total reached");
-        require(!_pause, "Sales not open");
-
-        _;
+        
+        _tokenIdTracker = 0;
     }
 
 
     /* [function] */
+    /**
+     * @notice Return bURI
+     * @dev [internal]
+    */
     function _baseURI()
         internal
         view
@@ -72,101 +63,42 @@ contract FSPAuditKillers is
         override
         returns (string memory)
     {
-        return baseTokenURI;
+        return bURI;
     }
 
 
-    function price(uint256 _count)
-        public
-        pure
-        returns (uint256)
-    {
-        return PRICE.mul(_count);
-    }
-
-
-    function setBaseURI(string memory baseURI)
+    /**
+     * @notice Set baseURI
+     * @param newbaseURI New baseURI
+    */
+    function setBaseURI(string memory newbaseURI)
         public
         onlyOwner()
     {
-        baseTokenURI = baseURI;
-    }
-
-
-    function tokensTotalMinted()
-        public
-        view
-        returns (uint256)
-    {
-        return _tokenIdTracker.current();
-    }
-
-
-    function signatureWallet(
-        address wallet,
-        uint256[] memory _tokensId,
-        uint256 _timestamp,
-        bytes memory _signature
-    )
-        public
-        pure
-        returns (address)
-    {
-        return ECDSA.recover(
-            keccak256(abi.encode(wallet, _tokensId, _timestamp)),
-            _signature
-        );
+        bURI = newbaseURI;
     }
 
 
     /**
      * @notice Mint a token
-     * @param _tokensId ids
-     * @param _timestamp timestamp
-     * @param _signature signature
-     * TODO: MAKE THIS FUNCTION ONLY MINT 1 AT A TIME. 
     */
-    function mint(
-        uint256[] memory _tokensId,
-        uint256 _timestamp,
-        bytes memory _signature
-    )
+    function mint()
         public
         payable
-        saleIsOpen()
     {
-        require(msg.value >= price(_tokensId.length), "!msg.value");
+        require(_tokenIdTracker < MAX_SUPPLY, "Max supply reached");
+        require(_paused == false || whitelist[msg.sender], "Mint paused");
+        require(msg.value >= PRICE || whitelist[msg.sender],  "!msg.value");
 
-        address signerOwner = signatureWallet(
-            _msgSender(),
-            _tokensId,
-            _timestamp,
-            _signature
-        );
+        // [increment]
+        _tokenIdTracker++;
 
-        require(signerOwner == owner(), "Not authorized to mint");
-
-        require(block.timestamp >= _timestamp - 30, "Out of time");
-
-        /* [for] Each tokensId(s) */
-        for (uint8 i = 0; i < _tokensId.length; i++)
-        {
-            require(tokensTotalMinted() <= MAX_SUPPLY, "Mint complete");
-            require(
-                ownerOf(_tokensId[i]) == address(0) &&
-                _tokensId[i] > 0 &&
-                _tokensId[i] <= MAX_SUPPLY,
-                "Token already minted"
-            );
-
-            _tokenIdTracker.increment();
-
-            _safeMint(_msgSender(), _tokensId[i]);
-        }
+        // [mint]
+        _safeMint(_msgSender(), _tokenIdTracker);
     }
 
 
-    function walletOfOwner(address _owner)
+    function walletOwnerOf(address _owner)
         external
         view
         returns (uint256[] memory)
@@ -184,13 +116,13 @@ contract FSPAuditKillers is
     }
 
 
-    function setPause(bool pause)
+    function setPaused(bool paused)
         public
         onlyOwner()
     {
-        _pause = pause;
+        _paused = paused;
 
-        emit PauseUpdated(_pause);
+        emit PauseUpdated(_paused);
     }
 
 

@@ -131,6 +131,8 @@ contract FSPAuditKillers is
         {
             _minted[msg.sender] = 1;
         }
+
+        emit Minted(msg.sender, tokenIdTracker);
     }
 
     /// @inheritdoc IFSPAuditKillers
@@ -169,12 +171,14 @@ contract FSPAuditKillers is
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function widthdrawETH(address target, uint256 _amount)
+    function widthdrawEther(address target, uint256 _amount)
         public
         onlyOwner()
     {
         // [transfer]
         (bool success, ) = target.call{value: _amount}("");
         require(success, "Transfer failed.");
+
+        emit EtherWithdrawn(_amount);
     }
 }

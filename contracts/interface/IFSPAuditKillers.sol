@@ -7,6 +7,10 @@ interface IFSPAuditKillers
 	/* [event] */
     event PauseUpdated(bool pause);
 
+    event Minted(address minter, uint256 tokenId);
+
+    event EtherWithdrawn(uint256 amount);
+
 	
 	/**
      * @notice Get baseURI
@@ -35,7 +39,7 @@ interface IFSPAuditKillers
     function isWhitelisted(address target) external view returns (bool);
 
 	/**
-     * @notice Return minted count
+     * @notice Return total tokens minted
      * @dev [!restriction]
      * @dev [view]
      * @param target {address}
@@ -99,11 +103,11 @@ interface IFSPAuditKillers
 	function whitelist(address target) external;
 
 	/**
-     * @notice Withdraw ETH in this contract
+     * @notice Withdraw Ether
      * @dev [restriction] owner
      * @dev [transfer]
      * @param target {address} to be withdrawn too
      * @param _amount {uint256} to be withdrawn
     */
-	function widthdrawETH(address target, uint256 _amount) external;
+	function widthdrawEther(address target, uint256 _amount) external;
 }

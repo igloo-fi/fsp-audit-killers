@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 
-/* [import][foreign] */
+/* [import] */
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -77,18 +77,18 @@ contract FSPAuditKillers is
     }
     
     /// @inheritdoc IFSPAuditKillers
-    function walletOwnerOf(address _owner)
+    function walletOwnerOf(address target)
         public
         view
         returns (uint256[] memory)
     {
-        uint256 tokenCount = balanceOf(_owner);
+        uint256 tokenCount = balanceOf(target);
 
         uint256[] memory tokensId = new uint256[](tokenCount);
 
         for (uint256 i = 0; i < tokenCount; i++)
         {
-            tokensId[i] = tokenOfOwnerByIndex(_owner, i);
+            tokensId[i] = tokenOfOwnerByIndex(target, i);
         }
 
         return tokensId;
@@ -129,19 +129,20 @@ contract FSPAuditKillers is
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function addToWhitelist(address _address)
+    function addToWhitelist(address target)
         public
         onlyOwner()
     {
-        _whitelist[_address] = true;
+        _whitelist[target] = true;
     }
 
     /// @inheritdoc IFSPAuditKillers
-    function widthdrawETH(address _address, uint256 _amount)
+    function widthdrawETH(address target, uint256 _amount)
         public
         onlyOwner()
     {
-        (bool success, ) = _address.call{value: _amount}("");
+        // [transfer]
+        (bool success, ) = target.call{value: _amount}("");
         require(success, "Transfer failed.");
     }
 }

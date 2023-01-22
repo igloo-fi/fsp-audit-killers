@@ -28,10 +28,10 @@ contract FSPAuditKillers is
 
     /* [public][constant] */
     uint256 public constant MAX_SUPPLY = 10000;
-    uint256 public constant PRICE = 0.01 ether;
 
     string public baseURI;
     uint8 public tokenIdTracker;
+    uint256 public price;
 
     /* [private] */
     bool private _paused;
@@ -47,8 +47,10 @@ contract FSPAuditKillers is
         _paused = true;
 
         setBaseURI(initialBaseURI);
-        
+
         tokenIdTracker = 0;
+        
+        price = 0.01 ether;
     }
 
 
@@ -101,7 +103,7 @@ contract FSPAuditKillers is
     {
         require(tokenIdTracker < MAX_SUPPLY, "Max supply reached");
         require(_paused == false || _whitelist[msg.sender], "Mint paused");
-        require(msg.value >= PRICE || _whitelist[msg.sender],  "!msg.value");
+        require(msg.value >= price || _whitelist[msg.sender],  "!msg.value");
 
         // [increment]
         tokenIdTracker++;
@@ -126,6 +128,15 @@ contract FSPAuditKillers is
         _paused = paused;
 
         emit PauseUpdated(_paused);
+    }
+
+
+    /// @inheritdoc IFSPAuditKillers
+    function setPrice(uint256 newPrice)
+        public
+        onlyOwner()
+    {
+        price = newPrice;
     }
 
     /// @inheritdoc IFSPAuditKillers

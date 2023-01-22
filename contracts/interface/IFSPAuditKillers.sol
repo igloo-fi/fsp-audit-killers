@@ -71,6 +71,14 @@ interface IFSPAuditKillers
 	function setPaused(bool paused) external;
 
 	/**
+     * @notice Set price
+     * @dev [restriction] owner
+     * @dev [update] `price`
+     * @param newPrice {uint256} New price
+    */
+	function setPrice(uint256 newPrice) external;
+
+	/**
      * @notice Add an address to _whitelist
      * @dev [restriction] owner
      * @dev [update] `_whitelist`
